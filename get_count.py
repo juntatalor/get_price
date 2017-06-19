@@ -3,29 +3,37 @@ from bs4 import BeautifulSoup
 
 
 def get_count_from_price(page_num):
-
-    if page_num > 0:
-        get_info_from_main_page = requests.get(
-            'https://realty.domclick.ru/prodazha-kvartir/?with_photo=1&addresses=0c5b2444-70a0-4932-980c-b4dc0d3f02b5&region=0c5b2444-70a0-4932-980c-b4dc0d3f02b5').text
-
-        soup = BeautifulSoup(get_info_from_main_page, features='html.parser')
-
+    num = 0
+    res_pr = []
+    for i in range(page_num):
+        paginator = 'https://realty.domclick.ru/prodazha-kvartir/?addresses=0c5b2444-70a0-4932-980c-b4dc0d3f02b5&' \
+                    'region=0c5b2444-70a0-4932-980c-b4dc0d3f02b5&with_photo=1&offset={}'.format(str(num))
+        page = requests.get(paginator).text
+        soup = BeautifulSoup(page, features='html.parser')
+        num += 30
         prices = soup.find_all(class_='offer-snippet__title')
+        for pr in prices:
+            sp = pr.find('span')
+            res_pr.append(int(sp.text.replace(' ', '')))
+    return sum(res_pr) / len(res_pr)
 
-        res_pr = []
 
-        for i in range(page_num):
-            page_num = 30
-            paginator = 'https://realty.domclick.ru/prodazha-kvartir/?addresses=0c5b2444-70a0-4932-980c-b4dc0d3f02b5&offset={}&region=0c5b2444-70a0-4932-980c-b4dc0d3f02b5&with_photo=1'.format(
-                str(page_num))
-            requests.get(paginator)
-            page_num += 30
-            for pr in prices:
-                sp = pr.find('span')
-                # удаляем пробелы в цене
-                res_pr.append(int(sp.text.replace(' ', '')))
-    else:
-        raise Exception('Number less 0')
-    return sum(res_pr)/ len(res_pr)
+def get_count_from_every_page(page_num):
+    num = 0
+    res_pr = []
+    count_from_page = []
+    for i in range(page_num):
+        paginator = 'https://realty.domclick.ru/prodazha-kvartir/?addresses=0c5b2444-70a0-4932-980c-b4dc0d3f02b5&' \
+                    'region=0c5b2444-70a0-4932-980c-b4dc0d3f02b5&with_photo=1&offset={}'.format(str(num))
+        page = requests.get(paginator).text
+        soup = BeautifulSoup(page, features='html.parser')
+        num += 30
+        prices = soup.find_all(class_='offer-snippet__title')
+        for pr in prices:
+            sp = pr.find('span')
+            res_pr.append(int(sp.text.replace(' ', '')))
+        count_from_page.append(sum(res_pr) / len(res_pr))
+    return count_from_page
 
 print(get_count_from_price(1))
+print(get_count_from_every_page(2))
