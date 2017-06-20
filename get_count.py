@@ -4,7 +4,8 @@ from bs4 import BeautifulSoup
 
 def get_count_from_price(page_num):
     res_pr = []
-    for num in range(page_num, 0, 30):
+    num = 0
+    for i in range(page_num):
         paginator = 'https://realty.domclick.ru/prodazha-kvartir/?addresses=0c5b2444-70a0-4932-980c-b4dc0d3f02b5&' \
                     'region=0c5b2444-70a0-4932-980c-b4dc0d3f02b5&with_photo=1&offset={}'.format(num)
         page = requests.get(paginator).text
@@ -13,11 +14,13 @@ def get_count_from_price(page_num):
         for pr in prices:
             sp = pr.find('span')
             res_pr.append(int(sp.text.replace(' ', '')))
+        num += 30
     return sum(res_pr) / len(res_pr)
 
 
 def get_count_from_every_page(page_num):
-    for num in range(page_num):
+    num = 0
+    for i in range(page_num):
         paginator = 'https://realty.domclick.ru/prodazha-kvartir/?addresses=0c5b2444-70a0-4932-980c-b4dc0d3f02b5&' \
                     'region=0c5b2444-70a0-4932-980c-b4dc0d3f02b5&with_photo=1&offset={}'.format(num)
         page = requests.get(paginator).text
@@ -26,6 +29,7 @@ def get_count_from_every_page(page_num):
         for pr in prices:
             sp = pr.find('span')
             yeild int(sp.text.replace(' ', ''))
+        num += 30
 
 print(get_count_from_price(1))
 
